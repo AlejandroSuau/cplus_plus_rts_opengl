@@ -37,17 +37,29 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 SET_TARGET_PROPERTIES(glm PROPERTIES CXX_STANDARD 20)
 
+# STB Image
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_BRANCH master
+)
+FetchContent_MakeAvailable(stb)
+
 # Sources
 FILE(GLOB_RECURSE SOURCES "src/*.cpp" "main.cpp")
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCES})
+
+ADD_LIBRARY(stb_image INTERFACE)
+TARGET_INCLUDE_DIRECTORIES(stb_image INTERFACE ${stb_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(
     ${PROJECT_NAME}
     PRIVATE
     glfw
     glad
-    glm)
+    glm
+    stb_image)
 
 TARGET_INCLUDE_DIRECTORIES(
     ${PROJECT_NAME}

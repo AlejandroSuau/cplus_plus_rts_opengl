@@ -1,5 +1,7 @@
 #include "core/ShaderProgram.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -41,6 +43,14 @@ void ShaderProgram::Use() const {
 
 GLuint ShaderProgram::GetID() const {
     return id_;
+}
+
+void ShaderProgram::SetInt(const std::string& name, int value) const {
+    glUniform1i(glGetUniformLocation(id_, name.c_str()), value);
+}
+
+void ShaderProgram::SetMat4(const std::string& name, const glm::mat4& matrix) const {
+    glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 std::string ShaderProgram::LoadFile(const std::string& file_path) {

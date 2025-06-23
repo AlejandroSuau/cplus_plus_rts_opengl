@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+
 #include <string>
 
 class ShaderProgram {
@@ -10,6 +12,9 @@ public:
 
     void Use() const;
     GLuint GetID() const;
+
+    void SetInt(const std::string& name, int value) const;
+    void SetMat4(const std::string& name, const glm::mat4& matrix) const;
 
 private:
     ShaderProgram(const ShaderProgram&) = delete;
