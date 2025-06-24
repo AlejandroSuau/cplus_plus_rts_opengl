@@ -21,6 +21,7 @@ std::vector<unsigned int> quadIndices = {
 App::App() 
     : context_(std::make_unique<OpenGLContext>(800, 600, "RTS Game"))
     , input_manager_(std::make_unique<InputManager>(context_->GetWindow()))
+    , camera_(std::make_unique<Camera2D>(-1.f, 1.f, -1.f, 1.f))
     , shader_(std::make_unique<ShaderProgram>("assets/shaders/basic.vert", "assets/shaders/basic.frag"))
     , mesh_(std::make_unique<Mesh>(quadVertices, quadIndices))
     , texture_(std::make_unique<Texture2D>("assets/images/StoneWall_Texture.png")) {}
@@ -35,9 +36,7 @@ void App::Render() {
 
     // Simple MVP: identity (no camera)
     glm::mat4 model = glm::mat4(1.f);
-    glm::mat4 view = glm::mat4(1.f);
-    glm::mat4 projection = glm::ortho(-1.f, 1.f, -1.f, 1.f, -1.f, 1.f);
-    glm::mat4 MVP = projection * view * model;
+    glm::mat4 MVP = camera_->GetProjectionMatrix() * camera_->GetViewMatrix() * model;
 
     shader_->SetMat4("MVP", MVP);
     texture_->Bind(0);
@@ -49,6 +48,7 @@ void App::Render() {
 void App::Run() {
     GLFWwindow* window = context_->GetWindow();
     while (!glfwWindowShouldClose(window)) {
+        HandleEvents();
         Render();
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -56,5 +56,9 @@ void App::Run() {
 }
 
 void App::HandleEvents() {
-
+    float camera_speed = .1f;
+    if (input_manager_->IsKeyPressed(GLFW_KEY_W)) camera_->Move({0.f, camera_speed});
+    if (input_manager_->IsKeyPressed(GLFW_KEY_S)) camera_->Move({0.f, -camera_speed});
+    if (input_manager_->IsKeyPressed(GLFW_KEY_A)) camera_->Move({-camera_speed, 0.f});
+    if (input_manager_->IsKeyPressed(GLFW_KEY_D)) camera_->Move({camera_speed, 0.f});
 }
