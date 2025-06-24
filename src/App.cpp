@@ -4,6 +4,10 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+namespace {
+const float kFixedTimeStep = 0.016666f; // In Seconds
+}
+
 // Quad simple con posición (x, y, z) + texcoords (u, v)
 std::vector<float> quadVertices = {
     // Positions        // TexCoords
@@ -47,12 +51,30 @@ void App::Render() {
 
 void App::Run() {
     GLFWwindow* window = context_->GetWindow();
+
+    float last_frame = static_cast<float>(glfwGetTime());
+    float accumulator = 0.f;
+
     while (!glfwWindowShouldClose(window)) {
+        float current_frame = static_cast<float>(glfwGetTime());
+        float delta_time = (current_frame - last_frame);
+        last_frame = current_frame;
+
+        accumulator += delta_time;
+        while (accumulator >= kFixedTimeStep) {
+            Update(kFixedTimeStep);
+            accumulator -= kFixedTimeStep;
+        }
+
         HandleEvents();
         Render();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+}
+
+void App::Update(float dt) {
+    
 }
 
 void App::HandleEvents() {
