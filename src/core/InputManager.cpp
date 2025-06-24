@@ -5,8 +5,13 @@ InputManager::InputManager(GLFWwindow* window)
     , mouse_position_(0.f, 0.f)
     , mouse_delta_(0.f, 0.f)
     , last_mouse_position_(0.f, 0.f) {
+    
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    mouse_position_ = glm::vec2(xpos, ypos);
+    last_mouse_position_ = mouse_position_;
+    
     glfwSetWindowUserPointer(window, this);
-
     glfwSetKeyCallback(window, KeyCallbackDispatch);
     glfwSetMouseButtonCallback(window, MouseButtonCallbackDispatch);
     glfwSetCursorPosCallback(window, CursorPositionCallbackDispatch);
@@ -28,6 +33,10 @@ glm::vec2 InputManager::GetMousePosition() const{
 
 glm::vec2 InputManager::GetMouseDelta() const{
     return mouse_delta_;
+}
+
+void InputManager::ResetMouseDelta() {
+    mouse_delta_ = glm::vec2(0.f, 0.f);
 }
 
 void InputManager::KeyCallback(int key, int scancode, int action, int mods) {

@@ -45,7 +45,7 @@ GLuint ShaderProgram::GetID() const {
     return id_;
 }
 
-void ShaderProgram::SetInt(const std::string& name, int value) const {
+void ShaderProgram::SetInt(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(id_, name.c_str()), value);
 }
 

@@ -8,7 +8,7 @@ class Mesh {
 public:
     Mesh(const std::vector<float>& vertices,
          const std::vector<unsigned int>& indices,
-        unsigned int stride = 5); // stride: pos(3) + text(2) = 5 by default
+         unsigned int stride = 8); // stride = 8 for 3 pos + 3 normal + 2 uv
     ~Mesh();
 
     void Draw() const;

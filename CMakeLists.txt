@@ -37,6 +37,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 SET_TARGET_PROPERTIES(glm PROPERTIES CXX_STANDARD 20)
 
+# tinyobjloader
+FetchContent_Declare(
+  tinyobjloader
+  GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+  GIT_TAG release
+)
+FetchContent_MakeAvailable(tinyobjloader)
+
 # STB Image
 FetchContent_Declare(
   stb
@@ -59,6 +67,7 @@ TARGET_LINK_LIBRARIES(
     glfw
     glad
     glm
+    tinyobjloader
     stb_image)
 
 TARGET_INCLUDE_DIRECTORIES(

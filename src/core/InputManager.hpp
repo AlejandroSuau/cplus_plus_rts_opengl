@@ -13,6 +13,7 @@ public:
     bool IsButtonPressed(int button) const;
     glm::vec2 GetMousePosition() const;
     glm::vec2 GetMouseDelta() const;
+    void ResetMouseDelta();
 
 private:
     void KeyCallback(int key, int scancode, int action, int mods);
