@@ -41,6 +41,6 @@ void Camera2D::Zoom(float factor) {
 }
     
 void Camera2D::UpdateViewMatrix() {
-    view_matrix_ = glm::translate(glm::mat4(1.f), glm::vec3(-position_, 0.f));
     view_matrix_ = glm::scale(view_matrix_, glm::vec3(zoom_, zoom_, 1.f));
+    view_matrix_ = glm::translate(glm::mat4(1.f), glm::vec3(-position_, 0.f));
 }

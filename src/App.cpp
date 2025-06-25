@@ -25,10 +25,11 @@ std::vector<unsigned int> quadIndices = {
 App::App() 
     : context_(std::make_unique<OpenGLContext>(800, 600, "RTS Game"))
     , input_manager_(std::make_unique<InputManager>(context_->GetWindow()))
-    , camera_(std::make_unique<Camera3D>(glm::vec3(3.f, 3.f, 3.f), glm::vec3(0,1,0), -135.f, -35.f))
+    , fps_camera_(std::make_unique<Camera3D>(glm::vec3(3.f, 3.f, 3.f), glm::vec3(0,1,0), -135.f, -35.f))
+    , ortho_camera_(std::make_unique<Camera2D>(-4.f, 4.f, -3.f, 3.f))
     , shader_(std::make_unique<ShaderProgram>("assets/shaders/basic.vert", "assets/shaders/basic.frag"))
     , mesh_(std::make_unique<Mesh>(quadVertices, quadIndices))
-    , model_(std::make_unique<ObjModel>("assets/models/cube.obj"))
+    , model_(std::make_unique<ObjModel>("assets/models/sphere.obj"))
     , texture_(std::make_unique<Texture2D>("assets/images/StoneWall_Texture.png")) {
     Init();
 }
@@ -64,17 +65,37 @@ void App::Run() {
 }
 
 void App::Update(float dt) {
-    if (input_manager_->IsKeyPressed(GLFW_KEY_W)) camera_->ProcessKeyboard('W', dt);
-    if (input_manager_->IsKeyPressed(GLFW_KEY_S)) camera_->ProcessKeyboard('S', dt);
-    if (input_manager_->IsKeyPressed(GLFW_KEY_A)) camera_->ProcessKeyboard('A', dt);
-    if (input_manager_->IsKeyPressed(GLFW_KEY_D)) camera_->ProcessKeyboard('D', dt);
-
-    glm::vec2 mouse_delta = input_manager_->GetMouseDelta();
-    camera_->ProcessMouseMovement(mouse_delta.x, -mouse_delta.y);
-    input_manager_->ResetMouseDelta();
+    if (camera_mode_ == CameraMode::FPS_3D) {
+        if (input_manager_->IsKeyPressed(GLFW_KEY_W)) fps_camera_->ProcessKeyboard('W', dt);
+        if (input_manager_->IsKeyPressed(GLFW_KEY_S)) fps_camera_->ProcessKeyboard('S', dt);
+        if (input_manager_->IsKeyPressed(GLFW_KEY_A)) fps_camera_->ProcessKeyboard('A', dt);
+        if (input_manager_->IsKeyPressed(GLFW_KEY_D)) fps_camera_->ProcessKeyboard('D', dt);
+    
+        glm::vec2 mouse_delta = input_manager_->GetMouseDelta();
+        fps_camera_->ProcessMouseMovement(mouse_delta.x, -mouse_delta.y);
+        input_manager_->ResetMouseDelta();
+    } else if (camera_mode_ == CameraMode::ORTHO_2D) {
+        glm::vec2 move(0.f);
+        if (input_manager_->IsKeyPressed(GLFW_KEY_W)) move.y += 1.f;
+        if (input_manager_->IsKeyPressed(GLFW_KEY_S)) move.y -= 1.f;
+        if (input_manager_->IsKeyPressed(GLFW_KEY_A)) move.x -= 1.f;
+        if (input_manager_->IsKeyPressed(GLFW_KEY_D)) move.x += 1.f;
+        if (glm::length(move) > 0.f)
+            ortho_camera_->Move(move * dt * 5.f); // Velocidad ajustable
+    }
 }
 
 void App::HandleEvents() {
+    static bool last_tab = false;
+    bool current_tab = input_manager_->IsKeyPressed(GLFW_KEY_TAB);
+    if (current_tab && !last_tab) {
+        if (camera_mode_ == CameraMode::FPS_3D)
+            camera_mode_ = CameraMode::ORTHO_2D;
+        else
+            camera_mode_ = CameraMode::FPS_3D;
+    }
+    last_tab = current_tab;
+    
     if (input_manager_->IsKeyPressed(GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(context_->GetWindow(), true);
         return;
@@ -87,9 +108,19 @@ void App::Render() {
 
     shader_->Use();
 
-    glm::mat4 projection = camera_->GetProjectionMatrix(800.f / 600.f);
-    glm::mat4 view = camera_->GetViewMatrix();
+    glm::mat4 projection, view;
+    if (camera_mode_ == CameraMode::FPS_3D) {
+        projection = fps_camera_->GetProjectionMatrix(800.f / 600.f);
+        view = fps_camera_->GetViewMatrix();
+    } else {
+        projection = ortho_camera_->GetProjectionMatrix();
+        view = ortho_camera_->GetViewMatrix();
+    }
+
     glm::mat4 model = glm::mat4(1.f);
+    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));  // Centrado
+    model = glm::scale(model, glm::vec3(0.3f));                 // Escalado
+    // glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
     glm::mat4 MVP = projection * view * model;
     shader_->SetMat4("MVP", MVP);
 
