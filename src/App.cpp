@@ -34,6 +34,7 @@ App::App()
 }
 
 void App::Init() {
+    glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(context_->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
