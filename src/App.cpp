@@ -82,6 +82,9 @@ void App::Update(float dt) {
         if (input_manager_->IsKeyPressed(GLFW_KEY_D)) move.x += 1.f;
         if (glm::length(move) > 0.f)
             ortho_camera_->Move(move * dt * 5.f); // Velocidad ajustable
+        
+        if (input_manager_->IsKeyPressed(GLFW_KEY_Q)) ortho_camera_->Zoom(1.0f + dt);
+        if (input_manager_->IsKeyPressed(GLFW_KEY_E)) ortho_camera_->Zoom(1.0f - dt);
     }
 }
 
@@ -120,7 +123,7 @@ void App::Render() {
     glm::mat4 model = glm::mat4(1.f);
     model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));  // Centrado
     model = glm::scale(model, glm::vec3(0.3f));                 // Escalado
-    // glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+
     glm::mat4 MVP = projection * view * model;
     shader_->SetMat4("MVP", MVP);
 

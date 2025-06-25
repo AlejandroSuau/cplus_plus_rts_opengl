@@ -37,10 +37,12 @@ void Camera2D::Move(const glm::vec2& delta) {
 
 void Camera2D::Zoom(float factor) {
     zoom_ *= factor;
+    zoom_ = glm::clamp(zoom_, 0.1f, 10.0f); // para que no se vuelva loca
     UpdateViewMatrix();
 }
     
 void Camera2D::UpdateViewMatrix() {
+    view_matrix_ = glm::mat4(1.f);
+    view_matrix_ = glm::translate(view_matrix_, glm::vec3(-position_, 0.f));
     view_matrix_ = glm::scale(view_matrix_, glm::vec3(zoom_, zoom_, 1.f));
-    view_matrix_ = glm::translate(glm::mat4(1.f), glm::vec3(-position_, 0.f));
 }
