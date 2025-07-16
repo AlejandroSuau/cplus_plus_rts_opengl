@@ -3,14 +3,18 @@
 #define GL_SILENCE_DEPRECATION
 #include <glad/glad.h>
 
+#include "core/ResourceManager.hpp"
+
 #include "core/OpenGLContext.hpp"
-#include "core/ShaderProgram.hpp"
 #include "core/InputManager.hpp"
 #include "core/Camera2D.hpp"
-#include "core/Camera3D.hpp"
-#include "core/Mesh.hpp"
-#include "core/Texture2D.hpp"
 #include "core/ObjModel.hpp"
+#include "core/Camera3D.hpp"
+
+#include "render/ShaderProgram.hpp"
+#include "render/Renderer.hpp"
+#include "render/Mesh.hpp"
+#include "render/Texture2D.hpp"
 
 #include <memory>
 
@@ -29,13 +33,15 @@ private:
     std::unique_ptr<InputManager> input_manager_;
     std::unique_ptr<Camera3D> fps_camera_;
     std::unique_ptr<Camera2D> ortho_camera_;
-    std::unique_ptr<ShaderProgram> shader_;
     bool is_running_{true};
     CameraMode camera_mode_{CameraMode::ORTHO_2D};
 
-    std::unique_ptr<Mesh> mesh_;
-    std::unique_ptr<ObjModel> model_;
-    std::unique_ptr<Texture2D> texture_;
+    std::shared_ptr<ShaderProgram> shader_;
+    std::shared_ptr<Mesh> mesh_;
+    std::shared_ptr<ObjModel> model_;
+    std::shared_ptr<Texture2D> texture_;
+
+    Renderer renderer_;
 
     void Init();
     void Update(float dt);

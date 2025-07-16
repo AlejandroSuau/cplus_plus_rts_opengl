@@ -7,6 +7,17 @@
 namespace {
 const float kFixedTimeStep = 0.016666f; // In Seconds
 }
+std::vector<float> orthoPlaneVertices = {
+    -1.f, -1.f, 0.f,  0.f, 0.f,  0.f, 0.f, 1.f,
+     1.f, -1.f, 0.f,  1.f, 0.f,  0.f, 0.f, 1.f,
+     1.f,  1.f, 0.f,  1.f, 1.f,  0.f, 0.f, 1.f,
+    -1.f,  1.f, 0.f,  0.f, 1.f,  0.f, 0.f, 1.f
+};
+
+std::vector<unsigned int> planeIndices = {
+    0, 1, 2,  // Primer triángulo
+    2, 3, 0   // Segundo triángulo
+};
 
 // Quad simple con posición (x, y, z) + texcoords (u, v)
 std::vector<float> quadVertices = {
@@ -27,10 +38,10 @@ App::App()
     , input_manager_(std::make_unique<InputManager>(context_->GetWindow()))
     , fps_camera_(std::make_unique<Camera3D>(glm::vec3(3.f, 3.f, 3.f), glm::vec3(0,1,0), -135.f, -35.f))
     , ortho_camera_(std::make_unique<Camera2D>(-4.f, 4.f, -3.f, 3.f))
-    , shader_(std::make_unique<ShaderProgram>("assets/shaders/basic.vert", "assets/shaders/basic.frag"))
-    , mesh_(std::make_unique<Mesh>(quadVertices, quadIndices))
-    , model_(std::make_unique<ObjModel>("assets/models/sphere.obj"))
-    , texture_(std::make_unique<Texture2D>("assets/images/StoneWall_Texture.png")) {
+    , shader_(ResourceManager::LoadShader("shader1", "assets/shaders/basic.vert", "assets/shaders/basic.frag"))
+    , mesh_(std::make_shared<Mesh>(orthoPlaneVertices, planeIndices))
+    , model_(ResourceManager::LoadModel("sphere", "assets/models/sphere.obj"))
+    , texture_(ResourceManager::LoadTexture("texture1", "assets/images/StoneWall_Texture.png")) {
     Init();
 }
 
@@ -109,8 +120,6 @@ void App::HandleEvents() {
 void App::Render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader_->Use();
-
     glm::mat4 projection, view;
     if (camera_mode_ == CameraMode::FPS_3D) {
         projection = fps_camera_->GetProjectionMatrix(800.f / 600.f);
@@ -120,15 +129,20 @@ void App::Render() {
         view = ortho_camera_->GetViewMatrix();
     }
 
-    glm::mat4 model = glm::mat4(1.f);
-    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));  // Centrado
-    model = glm::scale(model, glm::vec3(0.3f));                 // Escalado
+    renderer_.DrawMesh(
+        *mesh_,
+        *shader_,
+        *texture_,
+        projection * view * glm::mat4(1.f)
+    );
 
-    glm::mat4 MVP = projection * view * model;
-    shader_->SetMat4("MVP", MVP);
-
-    texture_->Bind(0);
-    shader_->SetInt("texture1", 0);
-    
-    model_->Draw();
+    // 2. Render esfera/cubo encima
+    /*{
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(0.f, 0.5f, 0.f));
+        model = glm::scale(model, glm::vec3(0.3f));
+        glm::mat4 MVP = projection * view * model;
+        shader_->SetMat4("MVP", MVP);
+        model_->Draw():
+    }*/
 }

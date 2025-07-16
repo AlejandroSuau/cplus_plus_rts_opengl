@@ -1,4 +1,4 @@
-#include "core/Mesh.hpp"
+#include "render/Mesh.hpp"
 
 Mesh::Mesh(
     const std::vector<float>& vertices,

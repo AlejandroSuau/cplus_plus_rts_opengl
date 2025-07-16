@@ -1,4 +1,4 @@
-#include "core/Texture2D.hpp"
+#include "render/Texture2D.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
